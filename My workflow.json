@@ -1,0 +1,275 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -576,
+        -192
+      ],
+      "id": "0a2b0a8e-abbd-46f9-89c0-37fd31bcf5aa",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yUow2v9xsOte8cSJ",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.snippet }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "job",
+              "description": "=when  anymail coming with text include  job relevant .it will seprated ."
+            },
+            {
+              "category": "Contract",
+              "description": "if any email coming with text for contract it seprated  "
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        -368,
+        -192
+      ],
+      "id": "f91aeb26-0fc8-429f-a82b-ce6190e092ed",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-chat-latest",
+          "mode": "list",
+          "cachedResultName": "gpt-5-chat-latest"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -448,
+        16
+      ],
+      "id": "6d3644eb-d66c-4d25-a678-c1cefd07c96a",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "JD0r76g6OJ0r02RM",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-chat-latest",
+          "mode": "list",
+          "cachedResultName": "GPT-5-CHAT-LATEST"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=You are my Personal Gmail assistant.\nyou acts as a copywriter and my personal gmail assistant , you will reply to this email:\n{{ $json.snippet }}\nyou have two types:\none is give me subject line and one is inner body"
+            }
+          ]
+        },
+        "simplify": false,
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        -16,
+        -240
+      ],
+      "id": "f2d9d28d-a4bf-4944-9a76-159f47081d16",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "JD0r76g6OJ0r02RM",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $json.output[0].content[0].text.match(/\\*\\*Subject Line:\\*\\* (.+)/)[1] }}\n\n",
+        "message": "={{ $json.output[0].content[0].text.match(/\\*\\*Email Body:\\*\\*\\s+([\\s\\S]+)/)[1] }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        336,
+        -240
+      ],
+      "id": "77572c40-fbf6-48f5-9894-24eebab212ad",
+      "name": "Create a draft",
+      "webhookId": "5e0b0f3c-fbe2-4855-ab69-a392b3f33271",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yUow2v9xsOte8cSJ",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-chat-latest",
+          "mode": "list",
+          "cachedResultName": "GPT-5-CHAT-LATEST"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=You are my Personal Gmail assistant.\nyou acts as a copywriter and my personal gmail assistant , you will reply to this email:\n\n{{ $json.snippet }}\n\nyou have two types:\none is give me subject line and one is inner body"
+            }
+          ]
+        },
+        "simplify": false,
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        -16,
+        -96
+      ],
+      "id": "dcb29a0b-b16e-490a-935d-9708c9db2dab",
+      "name": "Message a model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "JD0r76g6OJ0r02RM",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $json.output[0].content[0].text.match(/\\*\\*Subject:\\*\\* (.+)/)[1] }}\n",
+        "message": "={{ $json.output[0].content[0].text.match(/\\*\\*Body:\\*\\*\\s+([\\s\\S]+)/)[1] }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        336,
+        -96
+      ],
+      "id": "ac350338-bd8a-4304-8866-8918ecb8747f",
+      "name": "Create a draft1",
+      "webhookId": "69b442f9-49af-4e4d-ac98-2e3fa40a83d5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yUow2v9xsOte8cSJ",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Create a draft1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "fce95d9a-473b-4567-b0bf-da3c2a11b38d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "09682cdcd697e561fa8bb30fca2afaad9e4d6b5417f4c910b1c256fa7eb6ea65"
+  },
+  "id": "913jjSCcXKqRD9X5",
+  "tags": []
+}
